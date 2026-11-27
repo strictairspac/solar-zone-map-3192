@@ -1,7 +1,7 @@
 import { clearSession, session } from "../stores/session.js";
 
-export async function request(path, {method = "GET", data, raw = false, signal} = {}) {
-  const headers = new Headers();
+export async function request(path, {method = "GET", data, raw = false, signal, headers: extraHeaders} = {}) {
+  const headers = new Headers(extraHeaders || {});
   const current = session();
   if (current) headers.set("Authorization", `Bearer ${current.token}`);
   if (data !== undefined) headers.set("Content-Type", "application/json");

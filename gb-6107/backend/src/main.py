@@ -27,3 +27,4 @@ app.middleware("http")(catch_errors)
 app.middleware("http")(request_id)
 for group in (system, session, cases, runs):
     app.include_router(group.router)
+app.include_router(runs.receipt_router)

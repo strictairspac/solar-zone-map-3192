@@ -7,6 +7,28 @@ class Predicate:
     low: int | None = None
     high: int | None = None
 
+    @classmethod
+    def parse(cls, config):
+        if isinstance(config, cls):
+            return config
+        if not isinstance(config, dict):
+            raise ValueError("predicate 需要是对象")
+        mode = config.get("mode")
+        if mode == "null":
+            return cls("null")
+        if mode != "range":
+            raise ValueError("predicate.mode 需要 range 或 null")
+        low = config.get("low", config.get("low_cw"))
+        high = config.get("high", config.get("high_cw"))
+        # 兼容界面/HTTP 调用直接传 419.00–421.00 W 的两位小数。
+        if isinstance(low, float) and low <= 500:
+            low = round(low * 100)
+        if isinstance(high, float) and high <= 500:
+            high = round(high * 100)
+        if type(low) is not int or type(high) is not int or not 0 <= low <= high <= 500000:
+            raise ValueError("需要 0 ≤ low ≤ high ≤ 500000 的整数厘瓦范围")
+        return cls("range", low, high)
+
     def page_may_match(self, zone):
         if self.mode == "null":
             return zone.nulls > 0

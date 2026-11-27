@@ -57,7 +57,41 @@ def validate(payload):
     normalize(payload)
 
 
-def run(payload, parameter, db):
+def normalize_records(payload):
+    """只返回 (serial, power_cw) 行，供故障切换/续跑服务构造快照。"""
+    return normalize(payload)[0]
+
+
+def run(payload, parameter, db, **source_options):
+    # 无主备故障参数时严格保持原始 Zone Map 回执结构；有参数时走可续跑故障切换引擎。
+    if source_options:
+        from .reading_failover import DictReadingSource, build_snapshot, execute, normalize_source
+        options = dict(source_options)
+        primary = options.pop("primary", None)
+        for key in ("primary_db", "primary_source", "main_db", "master_db", "primary_reading_db"):
+            primary = primary or options.pop(key, None)
+        standby = options.pop("standby", None)
+        for key in ("backup", "backup_db", "replica", "replica_db", "standby_db",
+                    "secondary_db", "reading_backup"):
+            standby = standby or options.pop(key, None)
+        snapshot = options.pop("snapshot", None) or build_snapshot(payload, parameter)
+        if isinstance(primary, str):
+            if primary.lower() in {"down", "offline", "disconnected", "主库断线", "主库"}:
+                primary = DictReadingSource.from_snapshot(snapshot, "primary", online=False)
+            else:
+                primary = DictReadingSource.from_snapshot(snapshot, normalize_source(primary))
+        elif primary is False or (primary is None and options.get("primary_down")):
+            primary = DictReadingSource.from_snapshot(snapshot, "primary", online=False)
+        elif primary is True:
+            primary = DictReadingSource.from_snapshot(snapshot, "primary", online=True)
+        if isinstance(standby, str):
+            code = normalize_source(standby)
+            standby = DictReadingSource.from_snapshot(snapshot, code)
+        return execute(
+            payload=payload, parameter=parameter, snapshot=snapshot,
+            primary=primary, standby=standby, **options
+        )
+
     records, predicate = normalize(payload)
     pages = build_pages(records, parameter)
     evidence = []

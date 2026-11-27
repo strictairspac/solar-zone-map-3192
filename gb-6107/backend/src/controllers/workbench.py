@@ -8,9 +8,11 @@ def new_case(data, user):
         return cases.create(db, data, user["username"])
 
 
-def new_run(case_id, data, user):
+def new_run(case_id, data, user, idempotency_key=None):
     with engine.begin() as db:
-        run = runs.enqueue(db, case_id, data.parameter, user["username"])
+        run = runs.enqueue(
+            db, case_id, actor=user["username"], data=data, idempotency_key=idempotency_key
+        )
     try:
         cache.lpush("workbench:wake", str(run["id"]))
         cache.ltrim("workbench:wake", 0, 99)

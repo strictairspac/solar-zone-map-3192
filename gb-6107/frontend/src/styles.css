@@ -115,3 +115,18 @@ td a[aria-current=true] { font-weight: 750; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.source-banner { display: block; border-left-color: var(--good, #2f855a); }
+.source-banner h2 { margin-bottom: .45rem; }
+.source-banner p { margin: .35rem 0; }
+.run-status-line { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; }
+.wait-reason { color: #9a6700; font-weight: 650; }
+.source-drill { margin-top: .9rem; padding-top: .9rem; border-top: 1px dashed var(--rule); display: grid; gap: .65rem; }
+.source-drill h3 { font-size: .95rem; }
+.drill-actions { display: flex; flex-wrap: wrap; align-items: end; gap: .6rem; }
+.drill-actions label { display: grid; gap: .25rem; font-size: .82rem; color: var(--muted); }
+.drill-actions input { width: 7rem; }
+.drill-actions button { min-height: 2.2rem; }
+.state-processing, .state-waiting { color: #9a6700; }
+.state-cancelled { color: var(--muted); }
+.source-counts { font-size: .9rem; }

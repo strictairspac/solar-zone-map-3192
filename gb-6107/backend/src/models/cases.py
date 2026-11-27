@@ -9,5 +9,6 @@ cases = Table(
     Column("title", String(120), nullable=False),
     Column("description", String(420), nullable=False),
     Column("payload", JSON, nullable=False),
+    Column("page_size", Integer, nullable=False, server_default="4", default=4),
     Column("created_by", String(48), nullable=False),
 )

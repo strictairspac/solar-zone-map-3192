@@ -61,3 +61,14 @@ docker compose up -d --build --wait
 使用等条数的内存列页段和单个闪测谓词。报告记录读取数和跳过数。 当前界面用 JSON 编辑业务资料，以 JSON 下载证据。过程和截图保存在批次的 [验收记录](../../test-artifacts/gb-6107/TESTING.md)。
 
 [MIT License](LICENSE)
+
+### 主库断线与备库续读
+
+已接下的抽检单在接单时钉住板号、瓦数、谓词和逐页跳页依据。主库断线后，worker 会改用备库并核对这份快照：
+
+- 备库只缺本单可跳过的瓦数页时，仍按 Zone Map 跳页并照常出回执；
+- 必读页未到时单据留队，标记未到页和原因；缺页不会被当成空读数/缺测；
+- 每页保存检查点，中断或重试后从下一页继续；`receipts.run_id` 唯一，重试不会重复出回执；
+- 回执页的「读数来源」说明全部来自主库、备库，还是主库中断后续到备库（混合来源），导出 JSON 也包含同一证据。
+
+运行接口兼容 `/runs/{id}/failover`、`/runs/{id}/pages/arrive`、`/runs/{id}/retry`、`/runs/{id}/advance`、`/receipts` 与 `/worker/tick`；界面在执行页提供主备断线、缺页、补页和中断续跑演练。

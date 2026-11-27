@@ -7,6 +7,7 @@ class CaseInput(BaseModel):
     title: str = Field(min_length=2, max_length=120)
     description: str = Field(default="", max_length=420)
     payload: dict
+    page_size: int = Field(default=4, ge=1, le=256)
 
     @field_validator("title")
     @classmethod

@@ -34,7 +34,7 @@ async function refresh() {
     const pages = {
       overview: () => overview(config),
       cases: () => casesPage(config, user, route),
-      runs: () => runsPage(config, route, token.signal),
+      runs: () => runsPage(config, route, token.signal, user),
       evidence: () => evidencePage(config, user, route),
     };
     const page = await pages[route.name]();
